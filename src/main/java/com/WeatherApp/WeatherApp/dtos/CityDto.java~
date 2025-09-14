@@ -1,0 +1,8 @@
+package com.WeatherApp.WeatherApp.dtos;
+
+
+public class CityDto {
+
+    private int id;
+    private String name;
+}

@@ -1,0 +1,40 @@
+package com.WeatherApp.WeatherApp.service;
+
+import com.WeatherApp.WeatherApp.dtos.CityDto;
+import com.WeatherApp.WeatherApp.model.City;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CityService {
+
+    private List<City> cities;
+
+    public ResponseEntity<List<CityDto>> getCities() {
+        if (cities == null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                InputStream is = getClass().getResourceAsStream("/cities.json");
+                var root = mapper.readTree(is);
+                cities = mapper.convertValue(root.get("List"), new TypeReference<List<City>>() {});
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load cities.json", e);
+            }
+        }
+        List<CityDto> cityDtos = cities.stream().map(city -> {
+            CityDto cityDto = new CityDto();
+            cityDto.setId(city.getId());
+            cityDto.setName(city.getName());
+            return cityDto;
+        }).toList();
+        return ResponseEntity.ok(cityDtos);
+    }
+}
